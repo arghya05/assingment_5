@@ -25,16 +25,21 @@ jobs:
         pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
         pip install pytest numpy
     
-    - name: List directory contents
+    - name: Verify files
       run: |
+        echo "Working directory:"
         pwd
-        echo "Current directory contents:"
+        echo "\nFiles in directory:"
         ls -la
-        
+        echo "\nContent of mnist_model.py:"
+        cat mnist_model.py
+        echo "\nContent of test_model.py:"
+        cat test_model.py
+    
     - name: Run tests
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
-        export PYTHONPATH="${PYTHONPATH}:${PWD}"
-        echo "Python path is now: $PYTHONPATH"
-        ls -la  # Verify files are present
-        python -c "import sys; print(sys.path)"  # Print Python path
+        echo "Python path is: $PYTHONPATH"
+        python -c "import sys; print('Python search paths:'); [print(p) for p in sys.path]"
         python -m pytest -v test_model.py

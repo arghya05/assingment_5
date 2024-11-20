@@ -23,7 +23,7 @@ def train_loader():
         download=True
     )
     
-    return DataLoader(train_dataset, batch_size=64, shuffle=True)
+    return DataLoader(train_dataset, batch_size=32, shuffle=True)
 
 def test_parameter_count(model):
     """Test that model has less than 25000 parameters"""
@@ -49,7 +49,7 @@ def test_training_accuracy(model, train_loader):
     total = 0
     
     for i, (images, labels) in enumerate(train_loader):
-        if i >= 100:  # Test on first 100 batches to save time
+        if i >= 300:
             break
             
         images, labels = images.to(device), labels.to(device)
@@ -63,8 +63,8 @@ def test_training_accuracy(model, train_loader):
         total += labels.size(0)
         correct += predicted.eq(labels).sum().item()
         
-        if (i + 1) % 20 == 0:
-            print(f'Batch [{i + 1}/100], Accuracy: {100.*correct/total:.2f}%')
+        if (i + 1) % 50 == 0:
+            print(f'Batch [{i + 1}/300], Accuracy: {100.*correct/total:.2f}%')
     
     accuracy = 100. * correct / total
     print(f"\nFinal test accuracy: {accuracy:.2f}%")

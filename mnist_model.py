@@ -9,18 +9,21 @@ class LightMNIST(nn.Module):
     def __init__(self):
         super(LightMNIST, self).__init__()
         self.features = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=3, padding=1),  # 28x28x16
-            nn.BatchNorm2d(16),
+            nn.Conv2d(1, 20, kernel_size=3, padding=1),  # 28x28x20
+            nn.BatchNorm2d(20),
             nn.ReLU(),
-            nn.MaxPool2d(2),  # 14x14x16
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),  # 14x14x32
-            nn.BatchNorm2d(32),
+            nn.MaxPool2d(2),  # 14x14x20
+            nn.Conv2d(20, 40, kernel_size=3, padding=1),  # 14x14x40
+            nn.BatchNorm2d(40),
             nn.ReLU(),
-            nn.MaxPool2d(2),  # 7x7x32
-            nn.Dropout(0.2)
+            nn.MaxPool2d(2),  # 7x7x40
+            nn.Dropout(0.3)
         )
         self.classifier = nn.Sequential(
-            nn.Linear(7 * 7 * 32, 10)  # Direct mapping to output
+            nn.Linear(7 * 7 * 40, 128),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(128, 10)
         )
 
     def forward(self, x):
@@ -104,7 +107,7 @@ def main():
     count_parameters(model)
     
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
+    optimizer = optim.Adam(model.parameters(), lr=0.002)
 
     print("\nStarting training...")
     accuracy = train_model(model, train_loader, criterion, optimizer, device)

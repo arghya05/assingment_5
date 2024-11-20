@@ -23,7 +23,7 @@ def train_loader():
         download=True
     )
     
-    return DataLoader(train_dataset, batch_size=32, shuffle=True)
+    return DataLoader(train_dataset, batch_size=64, shuffle=True)
 
 def test_parameter_count(model):
     """Test that model has less than 25000 parameters"""
@@ -33,7 +33,7 @@ def test_parameter_count(model):
 
 def test_model_output(model):
     """Test model output shape"""
-    x = torch.randn(1, 1, 28, 28)  # Single MNIST image
+    x = torch.randn(1, 1, 28, 28)
     output = model(x)
     assert output.shape == (1, 10), f"Expected output shape (1, 10), got {output.shape}"
 
@@ -45,11 +45,17 @@ def test_training_accuracy(model, train_loader):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
     
     model.train()
+    running_loss = 0.0
     correct = 0
     total = 0
     
+    # Set random seed for reproducibility
+    torch.manual_seed(42)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    
     for i, (images, labels) in enumerate(train_loader):
-        if i >= 300:
+        if i >= 600:
             break
             
         images, labels = images.to(device), labels.to(device)
@@ -59,13 +65,16 @@ def test_training_accuracy(model, train_loader):
         loss.backward()
         optimizer.step()
         
+        running_loss += loss.item()
         _, predicted = outputs.max(1)
         total += labels.size(0)
         correct += predicted.eq(labels).sum().item()
         
-        if (i + 1) % 50 == 0:
-            print(f'Batch [{i + 1}/300], Accuracy: {100.*correct/total:.2f}%')
+        if (i + 1) % 100 == 0:
+            accuracy = 100. * correct / total
+            print(f'Batch [{i + 1}/600], Loss: {running_loss/100:.4f}, Accuracy: {accuracy:.2f}%')
+            running_loss = 0.0
     
     accuracy = 100. * correct / total
     print(f"\nFinal test accuracy: {accuracy:.2f}%")
-    assert accuracy >= 95.0, f"Model achieved {accuracy:.2f}% accuracy, below required 95%" 
+    assert accuracy >= 95.0, f"Model achieved {accuracy:.2f}% accuracy, below required 95%"

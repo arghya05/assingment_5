@@ -27,8 +27,13 @@ jobs:
     
     - name: List directory contents
       run: |
+        pwd
+        echo "Current directory contents:"
         ls -la
-        
+        echo "Python path:"
+        python -c "import sys; print('\n'.join(sys.path))"
+    
     - name: Run tests
       run: |
+        PYTHONPATH=$PYTHONPATH:$(pwd)
         python -m pytest test_model.py -v

@@ -30,10 +30,11 @@ jobs:
         pwd
         echo "Current directory contents:"
         ls -la
-        echo "Python path:"
-        python -c "import sys; print('\n'.join(sys.path))"
-    
+        
     - name: Run tests
       run: |
-        PYTHONPATH=$PYTHONPATH:$(pwd)
-        python -m pytest test_model.py -v
+        export PYTHONPATH="${PYTHONPATH}:${PWD}"
+        echo "Python path is now: $PYTHONPATH"
+        ls -la  # Verify files are present
+        python -c "import sys; print(sys.path)"  # Print Python path
+        python -m pytest -v test_model.py

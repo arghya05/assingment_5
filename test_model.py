@@ -42,7 +42,7 @@ def test_training_accuracy(model, train_loader):
     device = torch.device('cpu')
     model = model.to(device)
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.003)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.002, weight_decay=1e-5)
     
     model.train()
     running_loss = 0.0
@@ -55,7 +55,7 @@ def test_training_accuracy(model, train_loader):
     torch.backends.cudnn.benchmark = False
     
     for i, (images, labels) in enumerate(train_loader):
-        if i >= 600:
+        if i >= 938:
             break
             
         images, labels = images.to(device), labels.to(device)
@@ -72,7 +72,7 @@ def test_training_accuracy(model, train_loader):
         
         if (i + 1) % 100 == 0:
             accuracy = 100. * correct / total
-            print(f'Batch [{i + 1}/600], Loss: {running_loss/100:.4f}, Accuracy: {accuracy:.2f}%')
+            print(f'Batch [{i + 1}/938], Loss: {running_loss/100:.4f}, Accuracy: {accuracy:.2f}%')
             running_loss = 0.0
     
     accuracy = 100. * correct / total

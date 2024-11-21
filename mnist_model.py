@@ -5,6 +5,12 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
+def set_seed(seed=42):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 class LightMNIST(nn.Module):
     def __init__(self):
         super(LightMNIST, self).__init__()
@@ -60,6 +66,9 @@ def train_model(model, train_loader, criterion, optimizer, device):
     total = 0
     total_batches = len(train_loader)
 
+    # Set seed for reproducibility
+    set_seed()
+
     print(f"\nEpoch 1/{1}")
     print("-" * 60)
 
@@ -86,6 +95,9 @@ def train_model(model, train_loader, criterion, optimizer, device):
     return 100. * correct / total
 
 def main():
+    # Set seed for reproducibility
+    set_seed()
+    
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
@@ -101,7 +113,9 @@ def main():
         download=True
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    # Use same batch size as test
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True, 
+                            num_workers=0, generator=torch.Generator().manual_seed(42))
 
     model = LightMNIST().to(device)
     
@@ -109,7 +123,8 @@ def main():
     count_parameters(model)
     
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.003)
+    # Match optimizer settings with test
+    optimizer = optim.Adam(model.parameters(), lr=0.002, weight_decay=1e-5)
 
     print("\nStarting training...")
     accuracy = train_model(model, train_loader, criterion, optimizer, device)

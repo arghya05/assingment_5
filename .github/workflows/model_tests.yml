@@ -39,7 +39,8 @@ jobs:
     - name: Run tests
       env:
         PYTHONPATH: ${{ github.workspace }}
+        CUBLAS_WORKSPACE_CONFIG: :4096:8
+        PYTHONHASHSEED: 42
       run: |
-        echo "Python path is: $PYTHONPATH"
-        python -c "import sys; print('Python search paths:'); [print(p) for p in sys.path]"
+        python -c "import torch; torch.manual_seed(42); torch.backends.cudnn.deterministic=True; torch.backends.cudnn.benchmark=False"
         python -m pytest -v test_model.py
